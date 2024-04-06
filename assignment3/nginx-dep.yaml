@@ -11,16 +11,20 @@ spec:
     metadata:
       labels:
         app: nginx
+        run: nginx-svc
     spec:
       containers:
-        - name: nginx
-          image: nginx:1.14.2
-          ports:
-            - containerPort: 80
-          volumeMounts:
-            - name: nginx-config
-              mountPath: /etc/nginx/conf.d
-    volumes:
-      - name: nginx-config
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+
+        # Mounting the config map 
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.cfg
+      volumes:
+      - name: config-volume
         configMap:
           name: nginx-configmap

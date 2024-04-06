@@ -1,51 +1,94 @@
-# ENSF 400 - Assignment 3 - Kubernetes
+# Assignment 3
 
-This assignment has a full mark of 100. It takes up 5\% of your final grade. 
+## Author: Jori Duguid
 
-You will use Minikube in Codespaces to deploy an nginx service and 2 backend apps.
+## Instructions To Run In Order
 
-## Requirements
+minikube start
 
-Based on your work for [Lab 7](https://github.com/denoslab/ensf400-lab7-kubernetes-1) and [Lab 8](https://github.com/denoslab/ensf400-lab8-kubernetes-2), deploy an `nginx` service so that:
+kubectl apply -f nginx-configmap.yaml
 
-1. A `Deployment` config defined in `nginx-dep.yaml`. The Deployment has the name `nginx-dep` with 5 replicas. The Deployment uses a base image `nginx` with the version tag `1.14.2`. Expose port `80`.
-1. A `ConfigMap` defined in `nginx-configmap.yaml`, The `data` in the configmap has a key-value pair with the key being `default.conf` and value being the following:
-```
-upstream backend {
-    server app-1:8080;
-    server app-2:8080;
-}
+kubectl apply -f nginx-dep.yaml
 
-server {
-    location / {
-        proxy_pass http://backend;
-    }
-}
-```
-1. In the Deployment `nginx-dep`, mount the configuration file `default.conf` to the correct path of `/etc/nginx/conf.d` so that it serves as a load balancer, similar to what we have for [Assignment 2](https://github.com/denoslab/ensf400-lab5-ansible/tree/main/assignment2).
-1. A `Service` config of type `ClusterIP` defined in `nginx-svc.yaml`. The service has the name `nginx-svc`, exposes port `80`, and should use label selectors to select the pods from the `Deployment` defined in the last step.
-1. An `Ingress` config named `nginx-ingress.yaml` redirecting the requests to path `/` to the backend service `nginx-svc`. Example request and response:
-```bash
-$ curl http://$(minikube ip)/
-Hello World from [app-1-dep-86f67f4f87-2d28z]!
-$ curl http://$(minikube ip)/
-Hello World from [app-2-dep-7f686c4d8d-lr95c]!
-```
-1. Write `Deployment` and `Service` for `app-1` and `app-2`, respectively.
-1. Define two other `Ingress` configs named `app-1-ingress.yaml` and `app-2-ingress.yaml`, both redicting requests to `/` to the backend apps, taking `app-1` as the main deployment, and `app-2` as a canary deployment. The ingresses will redirect 70% of the traffic to `app-1` and 30% of the traffic to `app-2`. The docker images are pre-built for you. They can be downloaded using the URL below:
-```
-app-1: ghcr.io/denoslab/ensf400-sample-app:v1
-app-2: ghcr.io/denoslab/ensf400-sample-app:v2
-```
+kubectl apply -f nginx-svc.yaml
 
-## Deliverables
+kubectl apply -f nginx-ingress.yaml
 
-Submit the files below in a zip file. There is no need for TAs to access your Codespaces. TAs will mark your assignment based on the files you submitted.
+kubectl apply -f app-1-dep.yaml
 
-1. (10%) `nginx-dep.yaml`
-1. (10%) `nginx-configmap.yaml`
-1. (10%) `nginx-svc.yaml`
-1. (20%) `nginx-ingress.yaml`. Include steps showing the requests using `curl` and responses from load-balanced app backends (`app-1` and `app-2`).
-1. (15%) `app-1-dep.yaml`, `app-1-svc.yaml`, `app-2-dep.yaml`, `app-2-svc.yaml`.
-1. (20%) `app-1-ingress.yaml` and `app-2-ingress.yaml`.
-1. (15%) A `README.md` Markdown file describing the steps and outputs meeting the requirements.
+kubectl apply -f app-1-svc.yaml
+
+kubectl apply -f app-1-ingress.yaml
+
+kubectl apply -f app-2-dep.yaml
+
+kubectl apply -f app-2-svc.yaml
+
+kubectl apply -f app-2-ingress.yaml
+
+
+## To Test Functionality...
+
+Run the command: 
+
+curl http://$(minikube ip)/app
+
+## Requirement Meeting
+
+### Nginx Deployment:
+
+File: nginx-dep.yaml
+
+Description: Deploy Nginx with 5 replicas, using version 1.14.2, and expose port 80.
+
+Details: All requirements are met inside the nginx-dep.yaml file.
+
+### ConfigMap for Nginx:
+
+File: nginx-configmap.yaml
+
+Description: ConfigMap with Nginx configuration details, mounted on the Nginx Deployment.
+
+Details: The ConfigMap with the Nginx configuration details can be found in the nginx-configmap.yaml file. It is mounted to the Nginx configuration in the nginx-dep.yaml file.
+
+### Nginx Service:
+
+File: nginx-svc.yaml
+
+Description: Service selecting pods from the Nginx Deployment.
+
+Details: The pods from the Nginx deployment are selected, and the service is exposed on port 80.
+
+### Nginx Ingress:
+
+File: nginx-ingress.yaml
+
+Description: Ingress file redirecting requests to the "/" path to the Nginx service.
+
+Details: The nginx-ingress.yaml file redirects requests to the "/" path to the nginx-svc service.
+
+### App-1 and App-2 Deployment and Service:
+
+Files: app-1-dep.yaml, app-1-svc.yaml, app-2-dep.yaml, app-2-svc.yaml
+
+Description: Write deployment and service files for App-1 and App-2.
+
+Details: Deployment and service files for App-1 and App-2 can be found in the respective files.
+
+### Canary Deployment Ingress:
+
+Files: app-1-ingress.yaml, app-2-ingress.yaml
+
+Description: Ingress files setting up Canary deployment, redirecting 70% of requests to App-1 and 30% to App-2.
+
+Details: The app-1-ingress.yaml and app-2-ingress.yaml files redirect 70% of requests to /app to App-1 and 30% to App-2 using a Canary deployment.
+
+## Screenshots
+
+Output for nginx service;
+
+![IMAGE](nginx.png)
+
+Output for Canary deployment showing 70% app1 and 30% app2:
+
+![IMAGE](Canary.png)
